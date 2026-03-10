@@ -8,12 +8,16 @@ An open-source system designed to enable **natural language querying for legacy 
 
 ## 🌟 Overview
 
-This project is tailored for enterprise environments with large, complex, or poorly documented legacy database schemas. It leverages a Retrieval-Augmented Generation (RAG) architecture to:
+This project is tailored for enterprise environments with large, complex, or poorly documented legacy database schemas. It provides a **rough base (base thô)** for building natural language interfaces, leveraging **RAG (Retrieval-Augmented Generation)** with **Qdrant** for vector storage and **LangChain** for strategic pipeline orchestration.
 
+The system is designed to:
 1.  **Understand Intent**: Classify user requests and identify relevant data domains.
 2.  **Semantic Retrieval**: Use vector search (Qdrant) to find relevant tables and columns among thousands.
 3.  **Intelligent Generation**: Construct optimized SQL queries using state-of-the-art LLMs (OpenAI, Anthropic).
 4.  **Safe Execution**: Validate and execute queries against your legacy systems.
+
+> [!NOTE]
+> This repository is a **foundational base**. It is designed to be forked and extended for specific enterprise needs or more advanced RAG strategies.
 
 ---
 
@@ -21,7 +25,8 @@ This project is tailored for enterprise environments with large, complex, or poo
 
 - 🗣️ **Natural Language to SQL**: Accurate conversion of complex business questions.
 - 🏗️ **Legacy Support**: Optimized for MS SQL Server, PostgreSQL, and MySQL.
-- 🔍 **Semantic Schema Retrieval**: Efficiently handles huge schemas using vector embeddings.
+- 🔍 **Semantic Schema Retrieval**: Efficiently handles huge schemas using vector embeddings and Qdrant.
+- 🛠️ **LangChain Strategies**: Extensible pipeline using modular generation tactics.
 - 🛡️ **Query Validation**: Built-in safety checks before database execution.
 - 🚀 **Production-Ready**: High-performance FastAPI backend with telemetry and monitoring.
 
@@ -29,13 +34,36 @@ This project is tailored for enterprise environments with large, complex, or poo
 
 ## 🏗️ Architecture
 
-The pipeline follows a robust RAG workflow:
+### Basic Pipeline Flow
+The core workflow follows a retrieval-augmented execution path:
 
-1.  **Schema Extraction**: Crawls metadata, constraints, and relationships.
-2.  **Embedding**: Transforms schema definitions into high-dimensional vectors.
-3.  **Vector Search**: Matches user queries to the most relevant schema segments.
-4.  **Prompt Engineering**: Dynamically builds context-rich prompts for the LLM.
-5.  **Execution & Formatting**: Runs the query and returns clean, actionable data.
+```mermaid
+graph TD
+    A[User Question] --> B[Embedding]
+    B --> C[Vector Search - Qdrant]
+    C --> D[Relevant Schema / Docs]
+    D --> E[Prompt Construction]
+    E --> F[Generate SQL - LLM]
+    F --> G[Execute DB]
+    G --> H[Return Answer]
+```
+
+### Advanced Strategies
+For more complex scenarios, the architecture can be extended with multi-stage RAG:
+
+```mermaid
+graph LR
+    subgraph RAG Layers
+    S[RAG for Schema]
+    D[RAG for Documentation]
+    end
+    
+    Q[Question] --> S
+    Q --> D
+    S --> G[SQL Generation]
+    D --> G
+    G --> A[Answer Synthesis]
+```
 
 ---
 
