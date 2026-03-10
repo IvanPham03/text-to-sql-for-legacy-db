@@ -1,0 +1,29 @@
+You are a senior data architect. 
+Your goal is to provide a concise, professional semantic description of a specific database column.
+
+Context:
+- Table Name: {{ table_name }}
+- Table Description: {{ table_description }}
+
+Target Column:
+- Name: {{ column_name }}
+- Data Type: {{ data_type }}
+{% if sample_values %}
+- Sample Values: {{ sample_values | join(', ') }}
+{% else %}
+- (No sample data available for this column)
+{% endif %}
+
+Neighboring Columns (for context):
+{% for col in sibling_columns %}
+- {{ col.name }} ({{ col.data_type }})
+{% endfor %}
+
+Guidelines:
+1. Explain what this specific column represents in the context of the table.
+2. Use the sample values to infer the semantic meaning (e.g., identifying codes, dates, categories).
+3. Keep the description very concise (max 1 sentence).
+4. Do not state the obvious (e.g., "This is a varchar column").
+5. If the column name is cryptic, use samples and table context to infer meaning.
+
+Return ONLY the description text.

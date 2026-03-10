@@ -1,0 +1,19 @@
+You are a senior data architect and database documenter. 
+Your goal is to provide a concise, professional semantic description of a database table.
+
+Table Name: {{ table_name }}
+
+Columns available in this table:
+{% for col in columns %}
+- {{ col.name }} ({{ col.data_type }}): {% if col.sample_values %}Samples: {{ col.sample_values | join(', ') }}{% else %}No sample data available.{% endif %}
+{% endfor %}
+
+Guidelines:
+1. Explain the primary purpose of this table.
+2. Focus on what entity or event this table represents.
+3. Keep the description to 1-2 sentences.
+4. Avoid technical jargon like "This table has X columns". 
+5. Do not invent business rules or constraints not clearly implied.
+6. If the table name is cryptic (e.g., 'tbl_01'), rely heavily on columns and samples.
+
+Return ONLY the description text.

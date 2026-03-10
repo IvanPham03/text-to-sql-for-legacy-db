@@ -1,0 +1,104 @@
+services:
+  api: &main_app
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      target: dev
+    image: ivanpham_chatbot_assistant:${IVANPHAM_CHATBOT_ASSISTANT_VERSION:-latest}
+    restart: always
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app/src
+    env_file:
+      - path: .env
+        required: false
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      migrator:
+        condition: service_completed_successfully
+    environment:
+      IVANPHAM_CHATBOT_ASSISTANT_HOST: 0.0.0.0
+      IVANPHAM_CHATBOT_ASSISTANT_PORT: 8000
+      IVANPHAM_CHATBOT_ASSISTANT_RELOAD: "True"
+      IVANPHAM_CHATBOT_ASSISTANT_DB_HOST: ivanpham_chatbot_assistant-db
+      IVANPHAM_CHATBOT_ASSISTANT_DB_PORT: 5432
+      IVANPHAM_CHATBOT_ASSISTANT_DB_USER: ivanpham_chatbot_assistant
+      IVANPHAM_CHATBOT_ASSISTANT_DB_PASS: ivanpham_chatbot_assistant
+      IVANPHAM_CHATBOT_ASSISTANT_DB_BASE: ivanpham_chatbot_assistant
+      IVANPHAM_CHATBOT_ASSISTANT_REDIS_HOST: ivanpham_chatbot_assistant-redis
+      IVANPHAM_CHATBOT_ASSISTANT_QDRANT_HOST: ivanpham_chatbot_assistant-qdrant
+
+  db:
+    image: postgres:18.1-bookworm
+    hostname: ivanpham_chatbot_assistant-db
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_PASSWORD: "ivanpham_chatbot_assistant"
+      POSTGRES_USER: "ivanpham_chatbot_assistant"
+      POSTGRES_DB: "ivanpham_chatbot_assistant"
+    volumes:
+      - ivanpham_chatbot_assistant-db-data:/var/lib/postgresql
+    restart: always
+    healthcheck:
+      test: pg_isready -U ivanpham_chatbot_assistant
+      interval: 2s
+      timeout: 3s
+      retries: 40
+
+  migrator:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      target: dev
+    image: ivanpham_chatbot_assistant:${IVANPHAM_CHATBOT_ASSISTANT_VERSION:-latest}
+    restart: "no"
+    command: alembic upgrade head
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      IVANPHAM_CHATBOT_ASSISTANT_DB_HOST: ivanpham_chatbot_assistant-db
+      IVANPHAM_CHATBOT_ASSISTANT_DB_PORT: 5432
+      IVANPHAM_CHATBOT_ASSISTANT_DB_USER: ivanpham_chatbot_assistant
+      IVANPHAM_CHATBOT_ASSISTANT_DB_PASS: ivanpham_chatbot_assistant
+      IVANPHAM_CHATBOT_ASSISTANT_DB_BASE: ivanpham_chatbot_assistant
+    volumes:
+      - .:/app/src
+    depends_on:
+      db:
+        condition: service_healthy
+
+  redis:
+    image: redis:8.4.0
+    hostname: "ivanpham_chatbot_assistant-redis"
+    ports:
+      - "6379:6379"
+    restart: always
+    environment:
+      ALLOW_EMPTY_PASSWORD: "yes"
+    healthcheck:
+      test: redis-cli ping
+      interval: 1s
+      timeout: 3s
+      retries: 50
+
+  qdrant:
+    image: qdrant/qdrant:v1.13.2
+    hostname: ivanpham_chatbot_assistant-qdrant
+    restart: always
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - ivanpham_chatbot_assistant-qdrant-data:/qdrant/storage
+
+volumes:
+  ivanpham_chatbot_assistant-db-data:
+    name: ivanpham_chatbot_assistant-db-data
+  ivanpham_chatbot_assistant-qdrant-data:
+    name: ivanpham_chatbot_assistant-qdrant-data
