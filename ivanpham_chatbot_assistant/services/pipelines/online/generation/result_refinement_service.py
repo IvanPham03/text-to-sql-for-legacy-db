@@ -1,10 +1,12 @@
 import os
-from typing import Any, Dict, List
+from typing import Any
+
 from loguru import logger
 
 from ivanpham_chatbot_assistant.services.llm.llm_service import LLMService
 from ivanpham_chatbot_assistant.services.utils.prompt_renderer import PromptRenderer
 from ivanpham_chatbot_assistant.settings import settings
+
 
 class ResultRefinementService:
     """
@@ -33,36 +35,40 @@ class ResultRefinementService:
         self.prompt_renderer = PromptRenderer(templates_dir)
         self.template_name = "result_refinement.jinja2"
 
-    async def should_refine(self, data: List[Dict[str, Any]], columns: List[str]) -> bool:
+    async def should_refine(
+        self, data: list[dict[str, Any]], columns: list[str]
+    ) -> bool:
         """
         Determines if the result needs refinement.
         Refinement is needed if the result has very few columns or appears to be just identifiers.
         """
         if not data:
             return False
-            
+
         # If we only have 1 or 2 columns, it's likely 'thin'
         if len(columns) <= 2:
             # Check if columns look like IDs or codes
             id_keywords = ["id", "code", "phone", "email", "key"]
-            is_id_only = all(any(k in col.lower() for k in id_keywords) for col in columns)
+            is_id_only = all(
+                any(k in col.lower() for k in id_keywords) for col in columns
+            )
             if is_id_only:
                 return True
-                
+
         return False
 
     async def refine(
-        self, 
-        question: str, 
-        schema_context: str, 
-        initial_sql: str, 
-        initial_data: List[Dict[str, Any]]
-    ) -> Dict[str, Any]:
+        self,
+        question: str,
+        schema_context: str,
+        initial_sql: str,
+        initial_data: list[dict[str, Any]],
+    ) -> dict[str, Any]:
         """
         Generates and executes a refinement query to add context to the initial results.
         """
         logger.info("Triggering Strategy 3 — Result Refinement")
-        
+
         try:
             # 1. Generate Refinement Instructions/SQL
             prompt = self.prompt_renderer.render(
@@ -71,21 +77,18 @@ class ResultRefinementService:
                     "question": question,
                     "schema_context": schema_context,
                     "initial_sql": initial_sql,
-                    "initial_data": initial_data[:5], # Send a sample
-                }
+                    "initial_data": initial_data[:5],  # Send a sample
+                },
             )
 
             response = await self.llm_service.generate(
                 prompt, model="gpt-4o", temperature=0.0
             )
-            
+
             # The LLM should return a NEW SQL query that is richer
             refined_sql = response.get("text", "").strip()
-            
-            return {
-                "status": "success",
-                "refined_sql": refined_sql
-            }
+
+            return {"status": "success", "refined_sql": refined_sql}
 
         except Exception as e:
             logger.error(f"Error during result refinement: {e}")

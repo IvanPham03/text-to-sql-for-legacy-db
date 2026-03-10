@@ -1,13 +1,16 @@
-from typing import Any, Dict
+from typing import Any
+
 from ..base import BaseStrategy
+
 
 class AmbiguousQuestionDetectionStrategy(BaseStrategy):
     """
     Strategy to detect and clarify ambiguous questions.
     """
+
     name = "ambiguous_question_detection"
 
-    def apply(self, context: Dict[str, Any]) -> Dict[str, Any]:
+    def apply(self, context: dict[str, Any]) -> dict[str, Any]:
         prompt = context.get("prompt", "")
         instruction = (
             "Ambiguity Check: If the user's question is unclear or maps to multiple "

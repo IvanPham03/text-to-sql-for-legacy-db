@@ -1,13 +1,16 @@
-from typing import Any, Dict
+from typing import Any
+
 from ..base import BaseStrategy
+
 
 class NegativePromptingStrategy(BaseStrategy):
     """
     Strategy that lists common mistakes to avoid.
     """
+
     name = "negative_prompting"
 
-    def apply(self, context: Dict[str, Any]) -> Dict[str, Any]:
+    def apply(self, context: dict[str, Any]) -> dict[str, Any]:
         prompt = context.get("prompt", "")
         negatives = (
             "Avoid common mistakes:\n"

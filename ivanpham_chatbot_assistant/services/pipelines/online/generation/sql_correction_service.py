@@ -1,7 +1,7 @@
 import os
 import re
 import time
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from loguru import logger
 
@@ -48,8 +48,8 @@ class SqlCorrectionService:
         schema_context: str,
         failed_sql: str,
         error_message: str,
-        strategies: List[int] | None = None,
-    ) -> Dict[str, Any]:
+        strategies: list[int] | None = None,
+    ) -> dict[str, Any]:
         """
         Ask the LLM to correct a failed SQL query.
 
@@ -118,8 +118,8 @@ class SqlCorrectionService:
         initial_sql: str,
         validate_fn,
         execute_fn,
-        strategies: List[int] | None = None,
-    ) -> Dict[str, Any]:
+        strategies: list[int] | None = None,
+    ) -> dict[str, Any]:
         """
         Run the full self-correction loop: validate → execute → correct → retry.
 
@@ -135,11 +135,11 @@ class SqlCorrectionService:
             Dict with final status, sql, data, and attempt history.
         """
         current_sql = initial_sql
-        attempts: List[Dict[str, Any]] = []
+        attempts: list[dict[str, Any]] = []
 
         for attempt_num in range(1, self.MAX_ATTEMPTS + 1):
             t0 = time.perf_counter()
-            attempt_record: Dict[str, Any] = {
+            attempt_record: dict[str, Any] = {
                 "attempt": attempt_num,
                 "sql": current_sql,
             }
@@ -171,9 +171,16 @@ class SqlCorrectionService:
                 # Try correction if not last attempt
                 if attempt_num < self.MAX_ATTEMPTS:
                     correction = await self.correct(
-                        question, schema_context, current_sql, error_msg, strategies=strategies
+                        question,
+                        schema_context,
+                        current_sql,
+                        error_msg,
+                        strategies=strategies,
                     )
-                    if correction["status"] == "success" and correction["corrected_sql"]:
+                    if (
+                        correction["status"] == "success"
+                        and correction["corrected_sql"]
+                    ):
                         current_sql = correction["corrected_sql"]
                     else:
                         # LLM correction itself failed, stop early
@@ -204,9 +211,16 @@ class SqlCorrectionService:
                 # Try correction if not last attempt
                 if attempt_num < self.MAX_ATTEMPTS:
                     correction = await self.correct(
-                        question, schema_context, current_sql, error_msg, strategies=strategies
+                        question,
+                        schema_context,
+                        current_sql,
+                        error_msg,
+                        strategies=strategies,
                     )
-                    if correction["status"] == "success" and correction["corrected_sql"]:
+                    if (
+                        correction["status"] == "success"
+                        and correction["corrected_sql"]
+                    ):
                         current_sql = correction["corrected_sql"]
                     else:
                         logger.error("[self-correct] LLM correction failed. Stopping.")
@@ -214,9 +228,7 @@ class SqlCorrectionService:
                 continue
 
             # --- Success ---
-            attempt_record["latency_ms"] = round(
-                (time.perf_counter() - t0) * 1000, 2
-            )
+            attempt_record["latency_ms"] = round((time.perf_counter() - t0) * 1000, 2)
             attempts.append(attempt_record)
 
             logger.info(

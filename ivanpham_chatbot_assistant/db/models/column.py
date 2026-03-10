@@ -10,7 +10,9 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from ivanpham_chatbot_assistant.db.base import Base
 
 if TYPE_CHECKING:
-    from ivanpham_chatbot_assistant.db.models.column_description import ColumnDescription
+    from ivanpham_chatbot_assistant.db.models.column_description import (
+        ColumnDescription,
+    )
     from ivanpham_chatbot_assistant.db.models.table import Table
 
 

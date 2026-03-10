@@ -1,4 +1,3 @@
-from typing import Dict
 from sqlalchemy.engine import Engine
 
 
@@ -11,7 +10,7 @@ class PoolManager:
 
     def __new__(cls):
         if cls._instance is None:
-            cls._instance = super(PoolManager, cls).__new__(cls)
+            cls._instance = super().__new__(cls)
             cls._instance.engines = {}
         return cls._instance
 

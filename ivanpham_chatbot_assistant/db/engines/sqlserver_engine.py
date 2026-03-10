@@ -1,7 +1,9 @@
-from typing import Any, Dict
 import urllib
+from typing import Any
+
 from sqlalchemy import create_engine
 from sqlalchemy.engine import Engine
+
 from .base_engine import BaseEngine
 
 
@@ -10,7 +12,7 @@ class SQLServerEngine(BaseEngine):
     Implementation for SQL Server engine creation.
     """
 
-    def create_engine(self, config: Dict[str, Any]) -> Engine:
+    def create_engine(self, config: dict[str, Any]) -> Engine:
         """
         Create SQLAlchemy engine instance for SQL Server.
 

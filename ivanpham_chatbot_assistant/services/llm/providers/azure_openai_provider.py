@@ -1,6 +1,8 @@
-from typing import Any, Dict, List, Union
-from langchain_openai import AzureChatOpenAI
+from typing import Any
+
 from langchain_core.messages import BaseMessage, HumanMessage
+from langchain_openai import AzureChatOpenAI
+
 from ..base_llm_provider import BaseLLMProvider
 
 
@@ -9,7 +11,7 @@ class AzureOpenAIProvider(BaseLLMProvider):
     Azure OpenAI provider using LangChain's AzureChatOpenAI.
     """
 
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config: dict[str, Any]):
         super().__init__(config)
         self.llm = AzureChatOpenAI(
             azure_deployment=config["deployment_name"],
@@ -26,7 +28,9 @@ class AzureOpenAIProvider(BaseLLMProvider):
         response = await self.llm.ainvoke([HumanMessage(content=prompt)], **kwargs)
         return str(response.content)
 
-    async def chat(self, messages: List[Union[BaseMessage, Dict[str, str]]], **kwargs: Any) -> str:
+    async def chat(
+        self, messages: list[BaseMessage | dict[str, str]], **kwargs: Any
+    ) -> str:
         langchain_messages = self._convert_messages(messages)
         response = await self.llm.ainvoke(langchain_messages, **kwargs)
         return str(response.content)

@@ -42,18 +42,18 @@ class Settings(BaseSettings):
     db_host: str = "localhost"
     db_port: int = 5432
     db_user: str = "ivanpham_chatbot_assistant"
-    db_pass: str = "ivanpham_chatbot_assistant"  # noqa: S105
+    db_pass: str = "ivanpham_chatbot_assistant"
     db_base: str = "admin"
     db_echo: bool = False
-    
+
     # OpenAI Configuration
     openai_api_key: str | None = None
-    
+
     # Variables for the source SQL Database (e.g. SQL Server)
     sql_source_host: str = "localhost"
     sql_source_port: int = 1433
     sql_source_user: str = "sa"
-    sql_source_pass: str = "password"  # noqa: S105
+    sql_source_pass: str = "password"
     sql_source_base: str = "master"
     sql_source_driver: str = "ODBC Driver 18 for SQL Server"
     sql_source_encrypt: str = "no"

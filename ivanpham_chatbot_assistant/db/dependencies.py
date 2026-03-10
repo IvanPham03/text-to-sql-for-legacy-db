@@ -1,7 +1,8 @@
 from sqlalchemy.engine import Engine
+
+from .factory.engine_factory import create_engine_by_type
 from .pool.pool_manager import pool_manager
 from .registry import DATABASES
-from .factory.engine_factory import create_engine_by_type
 
 
 def init_db_engines():

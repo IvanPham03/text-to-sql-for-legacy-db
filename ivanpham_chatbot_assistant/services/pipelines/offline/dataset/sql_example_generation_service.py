@@ -1,8 +1,9 @@
 class SqlExampleGenerationService:
     """
-    Service responsible for generating high-quality NL-SQL pairs 
+    Service responsible for generating high-quality NL-SQL pairs
     to be used as few-shot examples in the online pipeline.
     """
+
     def __init__(self):
         pass
 

@@ -1,13 +1,16 @@
-from typing import Any, Dict
+from typing import Any
+
 from ..base import BaseStrategy
+
 
 class CreateTableSchemaStrategy(BaseStrategy):
     """
     Strategy that formats the schema using CREATE TABLE DDL statements.
     """
+
     name = "create_table_schema"
 
-    def apply(self, context: Dict[str, Any]) -> Dict[str, Any]:
+    def apply(self, context: dict[str, Any]) -> dict[str, Any]:
         # Logic to transform context['schema'] into DDL strings would go here
         # For now, we add an instruction to use this format
         prompt = context.get("prompt", "")

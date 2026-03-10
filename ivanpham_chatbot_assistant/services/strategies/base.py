@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Any, Dict
+from typing import Any
 
 
 class BaseStrategy(ABC):
@@ -11,7 +11,7 @@ class BaseStrategy(ABC):
     name: str
 
     @abstractmethod
-    def apply(self, context: Dict[str, Any]) -> Dict[str, Any]:
+    def apply(self, context: dict[str, Any]) -> dict[str, Any]:
         """
         Apply the strategy logic to the given context.
         """

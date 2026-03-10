@@ -1,7 +1,7 @@
 import json
 import os
 import re
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from loguru import logger
 
@@ -21,7 +21,7 @@ class AnswerGenerationService:
     # Value Normalization Map: raw database codes → human-readable labels
     # This reduces LLM hallucination by providing pre-cleaned values.
     # Add entries as needed for your domain.
-    VALUE_NORMALIZATION_MAP: Dict[str, str] = {
+    VALUE_NORMALIZATION_MAP: dict[str, str] = {
         "CAR FOR RENT": "Car rental service",
         "BUSINESS TRAVEL SERVICE": "Business travel service",
         "AIR TICKET": "Air ticket booking",
@@ -42,7 +42,7 @@ class AnswerGenerationService:
                         "name": "openai",
                         "config": {
                             "api_key": settings.openai_api_key,
-                            "model": "gpt-4o-mini", # Fast & cost-effective for summarization
+                            "model": "gpt-4o-mini",  # Fast & cost-effective for summarization
                         },
                     }
                 ]
@@ -58,20 +58,28 @@ class AnswerGenerationService:
     def _detect_language(text: str) -> str:
         """Simple heuristic to detect the language of the user's question."""
         # Vietnamese detection: look for common diacritical characters
-        if re.search(r'[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ]', text, re.IGNORECASE):
+        if re.search(
+            r"[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ]",
+            text,
+            re.IGNORECASE,
+        ):
             return "Vietnamese"
         # Japanese detection: Hiragana, Katakana, or CJK
-        if re.search(r'[\u3040-\u30ff\u4e00-\u9fff]', text):
+        if re.search(r"[\u3040-\u30ff\u4e00-\u9fff]", text):
             return "Japanese"
         # Korean detection: Hangul
-        if re.search(r'[\uac00-\ud7af\u1100-\u11ff]', text):
+        if re.search(r"[\uac00-\ud7af\u1100-\u11ff]", text):
             return "Korean"
         # Chinese detection: CJK without Japanese kana
-        if re.search(r'[\u4e00-\u9fff]', text) and not re.search(r'[\u3040-\u30ff]', text):
+        if re.search(r"[\u4e00-\u9fff]", text) and not re.search(
+            r"[\u3040-\u30ff]", text
+        ):
             return "Chinese"
         return "English"
 
-    def _normalize_values(self, sql_result: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    def _normalize_values(
+        self, sql_result: list[dict[str, Any]]
+    ) -> list[dict[str, Any]]:
         """
         Pre-process raw database values into human-readable labels.
 
@@ -91,7 +99,11 @@ class AnswerGenerationService:
                     upper_val = value.strip().upper()
                     if upper_val in self.VALUE_NORMALIZATION_MAP:
                         new_row[key] = self.VALUE_NORMALIZATION_MAP[upper_val]
-                    elif value == value.upper() and len(value) > 2 and value.isalpha() is False:
+                    elif (
+                        value == value.upper()
+                        and len(value) > 2
+                        and value.isalpha() is False
+                    ):
                         # ALL-CAPS string not in map → title-case fallback
                         new_row[key] = value.strip().title()
                     else:
@@ -104,9 +116,9 @@ class AnswerGenerationService:
     async def generate(
         self,
         question: str,
-        sql_result: List[Dict[str, Any]],
-        language: Optional[str] = None,
-    ) -> Dict[str, Any]:
+        sql_result: list[dict[str, Any]],
+        language: str | None = None,
+    ) -> dict[str, Any]:
         """
         Generates a natural language answer from a question and its SQL results.
         """
@@ -123,7 +135,7 @@ class AnswerGenerationService:
                 logger.info("SQL result is empty. Returning default empty message.")
                 return {
                     "status": "success",
-                    "answer": "No data was found matching your request."
+                    "answer": "No data was found matching your request.",
                 }
 
             # 2. Value Normalization (code → readable label)
@@ -132,37 +144,36 @@ class AnswerGenerationService:
             # 3. Truncate result for LLM context optimization
             summarized = False
             if len(normalized_result) > self.MAX_ROWS_FOR_LLM:
-                truncated_result = normalized_result[:self.MAX_ROWS_FOR_LLM]
+                truncated_result = normalized_result[: self.MAX_ROWS_FOR_LLM]
                 summarized = True
-                result_str = json.dumps(truncated_result, indent=2, ensure_ascii=False) + f"\n\n(Note: Showing first {self.MAX_ROWS_FOR_LLM} of {len(sql_result)} total rows)"
+                result_str = (
+                    json.dumps(truncated_result, indent=2, ensure_ascii=False)
+                    + f"\n\n(Note: Showing first {self.MAX_ROWS_FOR_LLM} of {len(sql_result)} total rows)"
+                )
             else:
                 result_str = json.dumps(normalized_result, indent=2, ensure_ascii=False)
 
             # 3. Render prompt
             prompt = self.prompt_renderer.render(
                 self.template_name,
-                {"question": question, "sql_result": result_str, "language": language}
+                {"question": question, "sql_result": result_str, "language": language},
             )
 
             # 4. Get response from LLM
             response = await self.llm_service.generate(
                 prompt,
-                temperature=0.3 # Slight creativity for natural phrasing
+                temperature=0.3,  # Slight creativity for natural phrasing
             )
 
             answer = response.get("text", "").strip()
 
             logger.info("Answer generation successful.")
-            return {
-                "status": "success",
-                "answer": answer,
-                "is_summarized": summarized
-            }
+            return {"status": "success", "answer": answer, "is_summarized": summarized}
 
         except Exception as e:
             logger.error(f"Error during answer generation: {e}")
             return {
                 "status": "error",
                 "error": str(e),
-                "answer": "Sorry, I encountered an error while processing the data results."
+                "answer": "Sorry, I encountered an error while processing the data results.",
             }

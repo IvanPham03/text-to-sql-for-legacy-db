@@ -1,5 +1,5 @@
 import json
-from typing import AsyncGenerator
+from collections.abc import AsyncGenerator
 
 from fastapi import APIRouter
 from fastapi.responses import StreamingResponse
@@ -7,8 +7,14 @@ from loguru import logger
 
 from ivanpham_chatbot_assistant.services.pipelines.online import online_pipeline
 from ivanpham_chatbot_assistant.web.schemas.base_response import BaseResponse
-from ivanpham_chatbot_assistant.web.schemas.query_schema import AskRequest, AskResponseData
-from ivanpham_chatbot_assistant.web.utils.response_builder import error_response, success_response
+from ivanpham_chatbot_assistant.web.schemas.query_schema import (
+    AskRequest,
+    AskResponseData,
+)
+from ivanpham_chatbot_assistant.web.utils.response_builder import (
+    error_response,
+    success_response,
+)
 
 router = APIRouter()
 
@@ -40,7 +46,7 @@ async def ask_question(request: AskRequest) -> BaseResponse:
             message="Query processed successfully.",
         )
 
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         logger.exception("POST /ask pipeline error")
         return error_response(
             message="An error occurred while processing the query.",
@@ -54,7 +60,7 @@ async def ask_question(request: AskRequest) -> BaseResponse:
 # ---------------------------------------------------------------------------
 
 
-async def _event_generator(request: AskRequest) -> AsyncGenerator[str, None]:
+async def _event_generator(request: AskRequest) -> AsyncGenerator[str]:
     """
     Converts pipeline events into SSE-formatted strings.
     Each yielded chunk follows the SSE spec:  ``data: <JSON>\n\n``
@@ -63,7 +69,7 @@ async def _event_generator(request: AskRequest) -> AsyncGenerator[str, None]:
         async for event in online_pipeline.ask_question_stream(request):
             payload = json.dumps(event, ensure_ascii=False)
             yield f"data: {payload}\n\n"
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         logger.exception("SSE event generator encountered an unexpected error.")
         error_event = json.dumps({"event": "error", "message": str(exc)})
         yield f"data: {error_event}\n\n"
@@ -97,7 +103,7 @@ async def ask_question_stream(request: AskRequest) -> StreamingResponse:
         media_type="text/event-stream",
         headers={
             "Cache-Control": "no-cache",
-            "X-Accel-Buffering": "no",   # Disable Nginx buffering if behind a proxy
+            "X-Accel-Buffering": "no",  # Disable Nginx buffering if behind a proxy
         },
     )
 

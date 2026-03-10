@@ -3,6 +3,7 @@ class VectorIndexingService:
     Service responsible for indexing schema embeddings and examples
     into a vector database (e.g., ChromaDB, Pinecone).
     """
+
     def __init__(self):
         pass
 

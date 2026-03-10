@@ -1,5 +1,6 @@
 from ivanpham_chatbot_assistant.settings import settings
-from .config import POOL_SIZE, MAX_OVERFLOW, POOL_PRE_PING, POOL_RECYCLE
+
+from .config import MAX_OVERFLOW, POOL_PRE_PING, POOL_RECYCLE, POOL_SIZE
 
 # Database source configurations
 DATABASES = {
@@ -25,5 +26,5 @@ DATABASES = {
         "max_overflow": MAX_OVERFLOW,
         "pool_pre_ping": POOL_PRE_PING,
         "pool_recycle": POOL_RECYCLE,
-    }
+    },
 }

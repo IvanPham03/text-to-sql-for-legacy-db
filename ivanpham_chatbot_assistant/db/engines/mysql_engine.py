@@ -1,6 +1,8 @@
-from typing import Any, Dict
+from typing import Any
+
 from sqlalchemy import create_engine
 from sqlalchemy.engine import Engine
+
 from .base_engine import BaseEngine
 
 
@@ -9,7 +11,7 @@ class MySQLEngine(BaseEngine):
     Implementation for MySQL engine creation.
     """
 
-    def create_engine(self, config: Dict[str, Any]) -> Engine:
+    def create_engine(self, config: dict[str, Any]) -> Engine:
         """
         Create SQLAlchemy engine instance for MySQL.
 

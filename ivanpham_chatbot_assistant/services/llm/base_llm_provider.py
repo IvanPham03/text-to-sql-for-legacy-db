@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
-from typing import Any, Dict, List, Optional, Union
-from langchain_core.messages import BaseMessage, HumanMessage, SystemMessage, AIMessage
+from typing import Any
+
+from langchain_core.messages import AIMessage, BaseMessage, HumanMessage, SystemMessage
 
 
 class BaseLLMProvider(ABC):
@@ -8,7 +9,7 @@ class BaseLLMProvider(ABC):
     Abstract base class for all LLM providers using LangChain.
     """
 
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config: dict[str, Any]):
         """
         Initialize the provider with configuration.
         """
@@ -21,16 +22,18 @@ class BaseLLMProvider(ABC):
         """
         Generates a text completion for a given prompt.
         """
-        pass
 
     @abstractmethod
-    async def chat(self, messages: List[Union[BaseMessage, Dict[str, str]]], **kwargs: Any) -> str:
+    async def chat(
+        self, messages: list[BaseMessage | dict[str, str]], **kwargs: Any
+    ) -> str:
         """
         Sends a list of messages for a chat completion.
         """
-        pass
 
-    def _convert_messages(self, messages: List[Union[BaseMessage, Dict[str, str]]]) -> List[BaseMessage]:
+    def _convert_messages(
+        self, messages: list[BaseMessage | dict[str, str]]
+    ) -> list[BaseMessage]:
         """
         Helper to convert dict messages to LangChain message objects.
         """
@@ -39,7 +42,7 @@ class BaseLLMProvider(ABC):
             if isinstance(m, BaseMessage):
                 converted.append(m)
                 continue
-            
+
             role = m.get("role")
             content = m.get("content", "")
             if role == "system":

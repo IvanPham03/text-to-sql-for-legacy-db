@@ -8,4 +8,3 @@ api_router.include_router(monitoring.router, prefix="/monitoring", tags=["monito
 api_router.include_router(offline.router, prefix="/offline", tags=["offline"])
 api_router.include_router(online.router, prefix="/online", tags=["online"])
 api_router.include_router(query_router)
-

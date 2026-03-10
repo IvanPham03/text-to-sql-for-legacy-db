@@ -1,6 +1,8 @@
-from typing import Any, Dict, List, Union
+from typing import Any
+
 from langchain_anthropic import ChatAnthropic
 from langchain_core.messages import BaseMessage, HumanMessage
+
 from ..base_llm_provider import BaseLLMProvider
 
 
@@ -9,7 +11,7 @@ class AnthropicProvider(BaseLLMProvider):
     Anthropic provider using LangChain's ChatAnthropic.
     """
 
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config: dict[str, Any]):
         super().__init__(config)
         self.llm = ChatAnthropic(
             model=config["model"],
@@ -24,7 +26,9 @@ class AnthropicProvider(BaseLLMProvider):
         response = await self.llm.ainvoke([HumanMessage(content=prompt)], **kwargs)
         return str(response.content)
 
-    async def chat(self, messages: List[Union[BaseMessage, Dict[str, str]]], **kwargs: Any) -> str:
+    async def chat(
+        self, messages: list[BaseMessage | dict[str, str]], **kwargs: Any
+    ) -> str:
         langchain_messages = self._convert_messages(messages)
         response = await self.llm.ainvoke(langchain_messages, **kwargs)
         return str(response.content)

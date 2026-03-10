@@ -1,11 +1,11 @@
-from .extraction import SchemaExtractionService
-from .embedding import SchemaEmbeddingService
 from .dataset import SqlExampleGenerationService
+from .embedding import SchemaEmbeddingService
+from .extraction import SchemaExtractionService
 from .indexing import VectorIndexingService
 
 __all__ = [
-    "SchemaExtractionService",
     "SchemaEmbeddingService",
+    "SchemaExtractionService",
     "SqlExampleGenerationService",
     "VectorIndexingService",
 ]

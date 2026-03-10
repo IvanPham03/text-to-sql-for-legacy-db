@@ -9,13 +9,24 @@ from sentry_sdk.integrations.sqlalchemy import SqlalchemyIntegration
 from ivanpham_chatbot_assistant.log import configure_logging
 from ivanpham_chatbot_assistant.settings import settings
 from ivanpham_chatbot_assistant.web.api.router import api_router
+from ivanpham_chatbot_assistant.web.exceptions.global_exception_handler import (
+    setup_global_exception_handlers,
+)
 from ivanpham_chatbot_assistant.web.lifespan import lifespan_setup
+from ivanpham_chatbot_assistant.web.metrics.prometheus_metrics import (
+    PrometheusMiddleware,
+    metrics_router,
+)
+from ivanpham_chatbot_assistant.web.middleware.logging_middleware import (
+    APILoggingMiddleware,
+)
+from ivanpham_chatbot_assistant.web.middleware.rate_limit_middleware import (
+    setup_rate_limiter,
+)
+from ivanpham_chatbot_assistant.web.middleware.request_id_middleware import (
+    RequestIDMiddleware,
+)
 
-from ivanpham_chatbot_assistant.web.middleware.request_id_middleware import RequestIDMiddleware
-from ivanpham_chatbot_assistant.web.middleware.logging_middleware import APILoggingMiddleware
-from ivanpham_chatbot_assistant.web.middleware.rate_limit_middleware import setup_rate_limiter
-from ivanpham_chatbot_assistant.web.exceptions.global_exception_handler import setup_global_exception_handlers
-from ivanpham_chatbot_assistant.web.metrics.prometheus_metrics import PrometheusMiddleware, metrics_router
 
 def get_app() -> FastAPI:
     """
@@ -53,7 +64,7 @@ def get_app() -> FastAPI:
 
     # Setup global exception handlers
     setup_global_exception_handlers(app)
-    
+
     # Setup Rate Limiting
     setup_rate_limiter(app)
 

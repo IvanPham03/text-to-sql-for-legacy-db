@@ -1,10 +1,8 @@
-import asyncio
 import logging
 from collections.abc import AsyncGenerator
-from contextlib import asynccontextmanager, suppress
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
-from loguru import logger
 from opentelemetry import metrics, trace
 from opentelemetry.exporter.otlp.proto.grpc._log_exporter import OTLPLogExporter
 from opentelemetry.exporter.otlp.proto.grpc.metric_exporter import OTLPMetricExporter
@@ -29,7 +27,10 @@ from prometheus_fastapi_instrumentator.instrumentation import (
 )
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
-from ivanpham_chatbot_assistant.services.redis.lifespan import init_redis, shutdown_redis
+from ivanpham_chatbot_assistant.services.redis.lifespan import (
+    init_redis,
+    shutdown_redis,
+)
 from ivanpham_chatbot_assistant.settings import settings
 
 
@@ -151,8 +152,6 @@ def setup_prometheus(app: FastAPI) -> None:  # pragma: no cover
     PrometheusFastApiInstrumentator(should_group_status_codes=False).instrument(
         app,
     ).expose(app, should_gzip=True, name="prometheus_metrics")
-
-
 
 
 @asynccontextmanager

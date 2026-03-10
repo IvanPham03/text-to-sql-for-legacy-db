@@ -1,11 +1,13 @@
-from typing import Any, Dict
+from typing import Any
+
 from sqlalchemy.engine import Engine
-from ..engines.postgres_engine import PostgresEngine
+
 from ..engines.mysql_engine import MySQLEngine
+from ..engines.postgres_engine import PostgresEngine
 from ..engines.sqlserver_engine import SQLServerEngine
 
 
-def create_engine_by_type(db_type: str, config: Dict[str, Any]) -> Engine:
+def create_engine_by_type(db_type: str, config: dict[str, Any]) -> Engine:
     """
     Factory function to create the correct engine based on database type.
 

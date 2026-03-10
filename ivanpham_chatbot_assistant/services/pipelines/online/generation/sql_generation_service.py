@@ -1,5 +1,5 @@
 import re
-from typing import Any, Dict, List
+from typing import Any
 
 from loguru import logger
 
@@ -35,13 +35,14 @@ class SqlGenerationService:
 
         # Initialize Prompt Renderer with local templates directory
         import os
+
         templates_dir = os.path.join(os.path.dirname(__file__), "prompts")
         self.prompt_renderer = PromptRenderer(templates_dir)
         self.template_name = "sql_generation.jinja2"
 
     async def execute(
-        self, question: str, schema_context: str, strategies: List[int] | None = None
-    ) -> Dict[str, Any]:
+        self, question: str, schema_context: str, strategies: list[int] | None = None
+    ) -> dict[str, Any]:
         """
         Generates a SQL query for a given question and schema context.
 
@@ -50,7 +51,9 @@ class SqlGenerationService:
             schema_context: Database schema context.
             strategies: Optional list of strategy codes from intent detection.
         """
-        logger.info(f"Generating SQL for question: '{question}' with strategies: {strategies}")
+        logger.info(
+            f"Generating SQL for question: '{question}' with strategies: {strategies}"
+        )
 
         # SCENARIO 1 — No schema retrieved: skip LLM to avoid hallucination
         if not schema_context or not schema_context.strip():
@@ -91,32 +94,25 @@ class SqlGenerationService:
                 return {
                     "status": "error",
                     "error": "Generated SQL missing SELECT statement or is empty.",
-                    "generated_sql": clean_sql
+                    "generated_sql": clean_sql,
                 }
 
             logger.info("SQL generation successful.")
-            return {
-                "status": "success",
-                "generated_sql": clean_sql
-            }
+            return {"status": "success", "generated_sql": clean_sql}
 
         except Exception as e:
             logger.error(f"Error during SQL generation: {e}")
-            return {
-                "status": "error",
-                "error": str(e),
-                "generated_sql": None
-            }
+            return {"status": "error", "error": str(e), "generated_sql": None}
 
     def _extract_sql(self, text: str) -> str:
         """Removes markdown code blocks if present."""
         sql_match = re.search(r"```sql\n(.*?)\n```", text, re.DOTALL | re.IGNORECASE)
         if sql_match:
             return sql_match.group(1).strip()
-        
+
         # Fallback to general code block
         generic_match = re.search(r"```\n(.*?)\n```", text, re.DOTALL)
         if generic_match:
             return generic_match.group(1).strip()
-            
-        return text.strip().rstrip(";") + ";" # Ensure single trailing semicolon
+
+        return text.strip().rstrip(";") + ";"  # Ensure single trailing semicolon

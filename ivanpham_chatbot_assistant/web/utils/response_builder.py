@@ -1,20 +1,23 @@
 import uuid
-from datetime import datetime, timezone
-from typing import Any, Dict, Optional
+from datetime import UTC, datetime
+from typing import Any
+
 from ivanpham_chatbot_assistant.web.schemas.base_response import BaseResponse
 from ivanpham_chatbot_assistant.web.schemas.error_response import ErrorDetail
 
-def _generate_meta() -> Dict[str, Any]:
+
+def _generate_meta() -> dict[str, Any]:
     """Generate default metadata for responses."""
     return {
         "request_id": str(uuid.uuid4()),
-        "timestamp": datetime.now(timezone.utc).isoformat()
+        "timestamp": datetime.now(UTC).isoformat(),
     }
 
+
 def success_response(
-    data: Optional[Any] = None, 
-    message: str = "Success", 
-    meta: Optional[Dict[str, Any]] = None
+    data: Any | None = None,
+    message: str = "Success",
+    meta: dict[str, Any] | None = None,
 ) -> BaseResponse[Any]:
     """
     Construct a successful API response.
@@ -29,18 +32,15 @@ def success_response(
         response_meta.update(meta)
 
     return BaseResponse(
-        success=True,
-        message=message,
-        data=data,
-        error=None,
-        meta=response_meta
+        success=True, message=message, data=data, error=None, meta=response_meta
     )
+
 
 def error_response(
     message: str = "An error occurred",
     error_code: str = "INTERNAL_SERVER_ERROR",
     details: str = "",
-    meta: Optional[Dict[str, Any]] = None
+    meta: dict[str, Any] | None = None,
 ) -> BaseResponse[Any]:
     """
     Construct an error API response.
@@ -60,5 +60,5 @@ def error_response(
         message=message,
         data=None,
         error=ErrorDetail(code=error_code, details=details),
-        meta=response_meta
+        meta=response_meta,
     )
