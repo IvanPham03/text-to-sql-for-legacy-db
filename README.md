@@ -78,7 +78,7 @@ graph LR
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-username/text-to-sql-legacy.git
+git clone https://github.com/IvanPham03/text-to-sql-legacy.git
 cd text-to-sql-legacy
 
 # Sync dependencies
