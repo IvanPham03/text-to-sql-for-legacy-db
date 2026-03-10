@@ -8,7 +8,7 @@ An open-source system designed to enable **natural language querying for legacy 
 
 ## 🌟 Overview
 
-This project is tailored for enterprise environments with large, complex, or poorly documented legacy database schemas. It provides a **rough base (base thô)** for building natural language interfaces, leveraging **RAG (Retrieval-Augmented Generation)** with **Qdrant** for vector storage and **LangChain** for strategic pipeline orchestration.
+This project is tailored for enterprise environments with large, complex, or poorly documented legacy database schemas. It provides a **rough base** for building natural language interfaces, leveraging **RAG (Retrieval-Augmented Generation)** with **Qdrant** for vector storage and **LangChain** for strategic pipeline orchestration.
 
 The system is designed to:
 1.  **Understand Intent**: Classify user requests and identify relevant data domains.
